@@ -1,0 +1,61 @@
+name: fintrack
+description: "FinTrack: personal expense tracker with budgets, savings goals, loan EMIs and bill reminders."
+publish_to: 'none'
+
+# version: <versionName>+<versionCode>. Increase the number after "+" for every Play Store upload.
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_local_notifications: ^22.3.3
+  flutter_timezone: ^5.1.1
+  ionicons: ^0.2.2
+  package_info_plus: ^10.2.2
+  provider: ^6.1.5+1
+  shared_preferences: ^2.5.5
+  timezone: ^0.11.2
+  url_launcher: ^6.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.7
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icon/icon.png
+
+# Regenerate launcher icons with: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: assets/icon/icon.png
+  adaptive_icon_background: "#4F46E5"
+  adaptive_icon_foreground: assets/icon/foreground.png
+  adaptive_icon_monochrome: assets/icon/monochrome.png
+  min_sdk_android: 24
+  web:
+    generate: true
+    image_path: assets/icon/icon.png
+    background_color: "#4F46E5"
+    theme_color: "#4F46E5"
+
+# Android launch screen. Regenerate with: dart run flutter_native_splash:create
+# It is deliberately a plain background (android12.png is transparent) so the
+# animated logo in lib/app/splash.dart builds up on a clean screen.
+flutter_native_splash:
+  color: "#F4F5FA"
+  android_12:
+    image: assets/splash/android12.png
+    color: "#F4F5FA"
+    icon_background_color: "#F4F5FA"
+  android: true
+  ios: false
+  web: false
