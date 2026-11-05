@@ -51,3 +51,6 @@ app.*.map.json
 
 # Obfuscation symbols from tool/build_release.sh (keep locally, never publish)
 /release-symbols/
+
+# Private notes, kept on this computer only (not published to GitHub)
+*.md
