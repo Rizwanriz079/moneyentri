@@ -245,6 +245,44 @@ void main() {
       expect(s.payments, isEmpty);
     });
 
+    test('reminders greet the user by first name and give the due date', () {
+      final due = DateTime(now.year, now.month, now.day).add(const Duration(days: 10));
+      final s = AppStore()..addLoan(_loan(start: toISO(due)));
+      s.updateSettings((x) => x.copyWith(name: 'Rizwan Khan'));
+      final plan = planReminders(s, now: now);
+      final dueOn = fmtDayMonth(toISO(due), currentYear: now.year);
+      final week = plan.firstWhere((p) => p.target.dueDate == toISO(due) && p.title.contains('due on'));
+      expect(week.title, 'Rizwan, your Car Loan EMI is due on $dueOn');
+      final today = plan.firstWhere((p) => p.target.dueDate == toISO(due) && p.title.endsWith('due today'));
+      expect(today.title, 'Rizwan, your Car Loan EMI is due today');
+      expect(today.body, contains('Due on $dueOn'));
+      // Without a name it still reads naturally.
+      s.updateSettings((x) => x.copyWith(name: ''));
+      expect(planReminders(s, now: now).first.title, startsWith('Your Car Loan EMI is due'));
+    });
+
+    test('bills read as "<name> bill"', () {
+      final s = AppStore()..addBill(_bill(start: addDays(todayISO(), 10)));
+      expect(planReminders(s, now: now).first.title, contains('Electricity bill is due'));
+    });
+
+    test('reminders fire at the chosen clock time, including minutes', () {
+      final s = AppStore()..addLoan(_loan(start: addDays(todayISO(), 10)));
+      s.updateSettings((x) => x.copyWith(reminderHour: 18, reminderMinute: 45));
+      final plan = planReminders(s, now: now);
+      expect(plan, isNotEmpty);
+      expect(plan.every((p) => p.fireAt.hour == 18 && p.fireAt.minute == 45), isTrue);
+    });
+
+    test('ordinal dates: 1st, 2nd, 3rd, 4th, 11th, 12th, 13th, 21st, 22nd, 23rd', () {
+      String d(int day) => fmtDayMonth('2026-01-${day.toString().padLeft(2, '0')}', currentYear: 2026);
+      expect([1, 2, 3, 4, 11, 12, 13, 21, 22, 23, 31].map(d).toList(), [
+        '1st January', '2nd January', '3rd January', '4th January', '11th January', '12th January',
+        '13th January', '21st January', '22nd January', '23rd January', '31st January',
+      ]);
+      expect(fmtDayMonth('2027-11-04', currentYear: 2026), '4th November 2027');
+    });
+
     test('total scheduled reminders are capped', () {
       final s = AppStore();
       for (var i = 0; i < 30; i++) {

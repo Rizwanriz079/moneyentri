@@ -122,6 +122,13 @@ ThemeData buildTheme(AppColors c) {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
     ),
     datePickerTheme: DatePickerThemeData(backgroundColor: c.card, headerBackgroundColor: c.primary, headerForegroundColor: Colors.white),
+    timePickerTheme: TimePickerThemeData(
+      backgroundColor: c.card,
+      dialBackgroundColor: c.cardAlt,
+      dayPeriodColor: c.primarySoft,
+      dayPeriodTextColor: c.text,
+      dayPeriodBorderSide: BorderSide(color: c.border),
+    ),
     splashFactory: NoSplash.splashFactory,
     highlightColor: Colors.transparent,
     extensions: [c],

@@ -450,6 +450,7 @@ class Settings {
     this.theme = 'light',
     this.notificationsEnabled = true,
     this.reminderHour = 9,
+    this.reminderMinute = 0,
     this.privateReminders = true,
     this.appLock = false,
   });
@@ -464,8 +465,8 @@ class Settings {
   /// Ask for fingerprint / face / device PIN when the app opens.
   final bool appLock;
 
-  /// Hour of day (0-23) at which reminders fire.
-  final int reminderHour;
+  /// Time of day at which reminders fire (24-hour clock).
+  final int reminderHour, reminderMinute;
 
   Settings copyWith({
     String? name,
@@ -474,6 +475,7 @@ class Settings {
     String? theme,
     bool? notificationsEnabled,
     int? reminderHour,
+    int? reminderMinute,
     bool? privateReminders,
     bool? appLock,
   }) => Settings(
@@ -483,6 +485,7 @@ class Settings {
     theme: theme ?? this.theme,
     notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
     reminderHour: reminderHour ?? this.reminderHour,
+    reminderMinute: reminderMinute ?? this.reminderMinute,
     privateReminders: privateReminders ?? this.privateReminders,
     appLock: appLock ?? this.appLock,
   );
@@ -494,6 +497,7 @@ class Settings {
     'theme': theme,
     'notificationsEnabled': notificationsEnabled,
     'reminderHour': reminderHour,
+    'reminderMinute': reminderMinute,
     'privateReminders': privateReminders,
     'appLock': appLock,
   };
@@ -505,6 +509,7 @@ class Settings {
     theme: j['theme'] ?? 'light',
     notificationsEnabled: j['notificationsEnabled'] ?? true,
     reminderHour: _i(j['reminderHour'] ?? 9),
+    reminderMinute: _i(j['reminderMinute'] ?? 0),
     privateReminders: j['privateReminders'] ?? true,
     appLock: j['appLock'] ?? false,
   );

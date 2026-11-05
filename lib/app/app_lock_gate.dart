@@ -10,18 +10,16 @@ import 'splash.dart';
 
 /// Covers the app with a lock screen when App lock is on.
 ///
-/// Locks on start, and again when the app comes back after being in the
-/// background for longer than [graceperiod] (short switches, such as opening
-/// the email app from About, don't ask again). While locked, the app below is
-/// kept alive but not shown, not tappable and hidden from screen readers.
+/// Locks when the app starts and every time it comes back from the
+/// background. Pauses caused by the fingerprint prompt itself are ignored, so
+/// the user is asked once, not twice. While locked, the app below is kept
+/// alive but not shown, not tappable and hidden from screen readers.
 class AppLockGate extends StatefulWidget {
   const AppLockGate({super.key, required this.child, this.service});
   final Widget child;
 
   /// For tests; defaults to [AppLockService.instance].
   final AppLockService? service;
-
-  static const graceperiod = Duration(seconds: 30);
 
   @override
   State<AppLockGate> createState() => _AppLockGateState();
@@ -32,7 +30,7 @@ class _AppLockGateState extends State<AppLockGate> with WidgetsBindingObserver {
   late bool _locked = _enabled;
   bool _busy = false;
   String? _message;
-  DateTime? _backgroundSince;
+  bool _leftApp = false;
 
   bool get _enabled => _lock.supported && context.read<AppStore>().settings.appLock;
 
@@ -54,17 +52,18 @@ class _AppLockGateState extends State<AppLockGate> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
-      // The fingerprint prompt itself can pause the app; ignore that.
-      if (!_busy) _backgroundSince ??= DateTime.now();
+      // The fingerprint prompt itself can pause the app; that isn't leaving.
+      if (!_busy && !_lock.recentlyPrompted) _leftApp = true;
     } else if (state == AppLifecycleState.resumed) {
-      final since = _backgroundSince;
-      _backgroundSince = null;
-      if (since != null && _enabled && DateTime.now().difference(since) > AppLockGate.graceperiod) {
+      final left = _leftApp;
+      _leftApp = false;
+      if (left && _enabled && !_locked) {
         setState(() {
           _locked = true;
           _message = null;
         });
-        _maybePrompt();
+        // Ask once the app is fully back on screen.
+        WidgetsBinding.instance.addPostFrameCallback((_) => _maybePrompt());
       }
     }
   }

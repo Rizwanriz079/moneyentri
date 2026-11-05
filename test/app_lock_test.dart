@@ -13,6 +13,16 @@ class FakeLock implements AppLockService {
   final List<UnlockResult> results;
   int prompts = 0;
 
+  bool pauseDuringPrompt = false;
+  bool _busy = false;
+  bool _justEnded = false;
+
+  @override
+  bool get busy => _busy;
+
+  @override
+  bool get recentlyPrompted => _busy || _justEnded;
+
   @override
   bool get supported => true;
 
@@ -22,8 +32,27 @@ class FakeLock implements AppLockService {
   @override
   Future<UnlockResult> authenticate(String reason) async {
     prompts++;
+    _busy = true;
+    if (pauseDuringPrompt) {
+      // Like many phones: the system prompt pauses and resumes the app.
+      final b = TestWidgetsFlutterBinding.instance;
+      b.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      b.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      b.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    }
+    await Future<void>.value();
+    _busy = false;
+    _justEnded = true;
+    if (pauseDuringPrompt) {
+      final b = TestWidgetsFlutterBinding.instance;
+      b.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      b.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      b.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    }
     return results.isEmpty ? UnlockResult.cancelled : results.removeAt(0);
   }
+
+  void settle() => _justEnded = false;
 }
 
 void main() {
@@ -87,21 +116,53 @@ void main() {
     expect(find.text('SECRET BALANCE'), findsNothing);
   });
 
-  testWidgets('relocks after 30+ seconds in the background, not after a quick switch', (tester) async {
-    final lock = FakeLock([UnlockResult.success]);
+  void leaveAndReturn(WidgetTester tester) {
+    final b = tester.binding;
+    for (final st in [
+      AppLifecycleState.inactive,
+      AppLifecycleState.hidden,
+      AppLifecycleState.paused,
+      AppLifecycleState.hidden,
+      AppLifecycleState.inactive,
+      AppLifecycleState.resumed,
+    ]) {
+      b.handleAppLifecycleStateChanged(st);
+    }
+  }
+
+  testWidgets('locks again every time the user leaves the app and comes back', (tester) async {
+    final lock = FakeLock([UnlockResult.success, UnlockResult.success]);
     await pumpGate(tester, lock, enabled: true);
     expect(find.text('SECRET BALANCE'), findsOneWidget);
+    lock.settle();
 
-    // Quick switch (e.g. to the email app): no new prompt.
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    leaveAndReturn(tester); // even a quick switch
     await tester.pump();
-    expect(find.text('FinTrack is locked'), findsNothing);
+    await tester.pump();
+    expect(lock.prompts, 2, reason: 'asks again after returning');
+    expect(find.text('SECRET BALANCE'), findsOneWidget, reason: 'unlocked by the second prompt');
+  });
+
+  testWidgets('the fingerprint prompt pausing the app does not cause a second prompt', (tester) async {
+    final lock = FakeLock([UnlockResult.success, UnlockResult.success])..pauseDuringPrompt = true;
+    await pumpGate(tester, lock, enabled: true);
+    await tester.pump();
+    await tester.pump();
+    expect(lock.prompts, 1, reason: 'one fingerprint, not two');
+    expect(find.text('SECRET BALANCE'), findsOneWidget);
+  });
+
+  testWidgets('turning App lock on in Settings does not lock straight away', (tester) async {
+    final lock = FakeLock([UnlockResult.success])..pauseDuringPrompt = true;
+    final store = await pumpGate(tester, lock, enabled: false);
+    // Profile asks for the fingerprint to confirm (this pauses the app on many phones)...
+    await lock.authenticate('Confirm to turn on App lock');
+    store.updateSettings((s) => s.copyWith(appLock: true));
+    await tester.pump();
+    await tester.pump();
+    // ...but that must not count as leaving the app.
     expect(lock.prompts, 1);
+    expect(find.text('FinTrack is locked'), findsNothing);
   });
 
   testWidgets('if the phone screen lock was removed, App lock turns itself off', (tester) async {

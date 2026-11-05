@@ -14,8 +14,8 @@ import '../services/app_lock.dart';
 import '../services/notification_service.dart';
 import '../widgets/ui.dart';
 
-const _hours = [7, 8, 9, 10, 12, 18, 20];
-String _hourLabel(int h) => '${h % 12 == 0 ? 12 : h % 12} ${h < 12 ? 'AM' : 'PM'}';
+/// "9:00 AM", "6:30 PM"
+String _timeLabel(int h, int m) => '${h % 12 == 0 ? 12 : h % 12}:${m.toString().padLeft(2, '0')} ${h < 12 ? 'AM' : 'PM'}';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -88,6 +88,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
       case UnlockResult.error:
         await infoDialog(context, 'Something went wrong', 'Couldn\'t check your fingerprint or screen lock. Try again.');
     }
+  }
+
+  /// Clock picker for the time reminders are sent.
+  Future<void> _pickReminderTime(int hour, int minute) async {
+    final store = context.read<AppStore>();
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: hour, minute: minute),
+      helpText: 'Send reminders at',
+      initialEntryMode: TimePickerEntryMode.dial,
+    );
+    if (picked == null) return;
+    store.updateSettings((s) => s.copyWith(reminderHour: picked.hour, reminderMinute: picked.minute));
+    _refresh(); // reschedule reminders at the new time
   }
 
   Future<void> _open(Uri uri) async {
@@ -267,20 +281,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onChanged: (v) => store.updateSettings((s) => s.copyWith(privateReminders: v)),
                 ),
                 const HairDivider(),
-                Field(
-                  label: 'Remind me at',
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      for (final h in _hours)
-                        AppChip(
-                          label: _hourLabel(h),
-                          active: settings.reminderHour == h,
-                          onTap: () => store.updateSettings((s) => s.copyWith(reminderHour: h)),
-                        ),
-                    ],
-                  ),
+                NavRow(
+                  icon: 'time-outline',
+                  title: 'Reminder time',
+                  subtitle: '${_timeLabel(settings.reminderHour, settings.reminderMinute)} on each reminder day',
+                  onTap: () => _pickReminderTime(settings.reminderHour, settings.reminderMinute),
                 ),
                 if (perm == NotifPermission.unsupported)
                   const T(

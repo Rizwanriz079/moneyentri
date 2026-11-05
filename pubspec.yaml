@@ -3,7 +3,7 @@ description: "FinTrack: personal expense tracker with budgets, savings goals, lo
 publish_to: 'none'
 
 # version: <versionName>+<versionCode>. Increase the number after "+" for every Play Store upload.
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ^3.10.4

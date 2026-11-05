@@ -83,6 +83,15 @@ String fmtDate(String s) {
 /// "Thu, 5 Nov 2026"
 String fmtLong(String s) => '${weekdayShort(s)}, ${fmtDate(s)}';
 
+/// "4th November", with the year added when it isn't [currentYear]: "4th January 2027".
+String fmtDayMonth(String s, {int? currentYear}) {
+  final d = parseISO(s);
+  final n = d.day;
+  final suffix = (n % 100 >= 11 && n % 100 <= 13) ? 'th' : const {1: 'st', 2: 'nd', 3: 'rd'}[n % 10] ?? 'th';
+  final year = d.year == (currentYear ?? DateTime.now().year) ? '' : ' ${d.year}';
+  return '$n$suffix ${_monthsLong[d.month - 1]}$year';
+}
+
 String weekdayShort(String s) => _days[parseISO(s).weekday - 1];
 
 /// "Today", "Yesterday", "Tomorrow" or "5 Nov 2026"

@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:ionicons/ionicons.dart';
 
 const Map<String, IconData> _icons = {
+  'time-outline': Ionicons.time_outline,
   'refresh-outline': Ionicons.refresh_outline,
   'people-outline': Ionicons.people_outline,
   'key-outline': Ionicons.key_outline,

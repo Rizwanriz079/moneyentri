@@ -84,20 +84,31 @@ List<PlannedReminder> planReminders(AppStore s, {DateTime? now}) {
   final today = toISO(now);
   final planned = <PlannedReminder>[];
 
+  // Personal greeting with the first name from Profile, when there is one.
+  final firstName = s.settings.name.trim().split(RegExp(r'\s+')).first;
+
   List<PlannedReminder> remindersFor(Occurrence occ, List<int> offsets, String extra) {
     final money = formatMoney(occ.amount, s.settings.currency);
-    final label = occ.kind == 'loan' ? '${occ.name} EMI' : occ.name;
+    final label = occ.kind == 'loan'
+        ? '${occ.name} EMI'
+        : (occ.name.toLowerCase().contains('bill') ? occ.name : '${occ.name} bill');
+    final dueOn = fmtDayMonth(occ.dueDate, currentYear: now!.year);
     final out = <PlannedReminder>[];
     for (final offset in offsets.toSet()) {
       final day = parseISO(addDays(occ.dueDate, -offset));
-      final fire = DateTime(day.year, day.month, day.day, s.settings.reminderHour);
-      if (!fire.isAfter(now!.add(const Duration(seconds: 10)))) continue;
-      final when = offset == 0 ? 'is due today' : (offset == 1 ? 'is due tomorrow' : 'is due in $offset days');
-      final title = offset == 0 ? '⏰ $label due today' : '$label due in $offset day${offset > 1 ? 's' : ''}';
+      final fire = DateTime(day.year, day.month, day.day, s.settings.reminderHour, s.settings.reminderMinute);
+      if (!fire.isAfter(now.add(const Duration(seconds: 10)))) continue;
+      final when = switch (offset) {
+        0 => 'is due today',
+        1 => 'is due tomorrow',
+        _ => 'is due on $dueOn',
+      };
+      // "Rizwan, your Car Loan EMI is due on 4th November" / "Your Car Loan EMI is due today"
+      final title = '${firstName.isEmpty ? 'Your' : '$firstName, your'} $label $when';
       // Private mode leaves the amount out: notifications can be read on the lock screen.
       final body = s.settings.privateReminders
-          ? 'Payment $when (${fmtLong(occ.dueDate)}). Open FinTrack to see the amount and record it.'
-          : '$money $when (${fmtLong(occ.dueDate)})$extra. Tap to record the payment.';
+          ? '${offset <= 1 ? 'Due on $dueOn. ' : ''}Open FinTrack to see the amount and record the payment.'
+          : '$money due on $dueOn$extra. Tap to record the payment.';
       final key = ['ft', occ.kind, occ.refId, occ.dueDate, offset, _hash('$title|$body|${fire.millisecondsSinceEpoch}')].join('|');
       out.add(PlannedReminder(key, fire, title, body, PayTarget(occ.kind, occ.refId, occ.dueDate)));
     }
