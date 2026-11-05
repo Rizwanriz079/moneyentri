@@ -17,6 +17,9 @@ class SplashOverlay extends StatefulWidget {
   const SplashOverlay({super.key, required this.child});
   final Widget child;
 
+  /// Becomes true when the splash has finished (App lock waits for this).
+  static final done = ValueNotifier<bool>(false);
+
   @override
   State<SplashOverlay> createState() => _SplashOverlayState();
 }
@@ -43,6 +46,7 @@ class _SplashOverlayState extends State<SplashOverlay> with TickerProviderStateM
     if (!mounted) return;
     await _exit.forward();
     if (mounted) setState(() => _done = true);
+    SplashOverlay.done.value = true;
   }
 
   @override

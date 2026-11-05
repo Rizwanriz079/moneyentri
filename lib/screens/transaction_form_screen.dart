@@ -166,7 +166,12 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
           ),
         if (!linked)
           Center(
-            child: WalletCoins(amount: parseAmount(amount).isNaN ? 0 : parseAmount(amount), income: type == 'income', color: accent),
+            // Previous design: WalletCoins(amount: …, income: type == 'income', color: accent)
+            child: AmountJar(
+              amount: parseAmount(amount).isNaN ? 0 : parseAmount(amount),
+              color: accent,
+              symbol: currencySymbol(currency),
+            ),
           ),
         Opacity(
           opacity: linked ? 0.6 : 1,

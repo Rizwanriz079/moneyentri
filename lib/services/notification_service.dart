@@ -94,7 +94,10 @@ List<PlannedReminder> planReminders(AppStore s, {DateTime? now}) {
       if (!fire.isAfter(now!.add(const Duration(seconds: 10)))) continue;
       final when = offset == 0 ? 'is due today' : (offset == 1 ? 'is due tomorrow' : 'is due in $offset days');
       final title = offset == 0 ? '⏰ $label due today' : '$label due in $offset day${offset > 1 ? 's' : ''}';
-      final body = '$money $when (${fmtLong(occ.dueDate)})$extra. Tap to record the payment.';
+      // Private mode leaves the amount out: notifications can be read on the lock screen.
+      final body = s.settings.privateReminders
+          ? 'Payment $when (${fmtLong(occ.dueDate)}). Open FinTrack to see the amount and record it.'
+          : '$money $when (${fmtLong(occ.dueDate)})$extra. Tap to record the payment.';
       final key = ['ft', occ.kind, occ.refId, occ.dueDate, offset, _hash('$title|$body|${fire.millisecondsSinceEpoch}')].join('|');
       out.add(PlannedReminder(key, fire, title, body, PayTarget(occ.kind, occ.refId, occ.dueDate)));
     }
@@ -209,6 +212,9 @@ class NotificationService {
       channelDescription: 'EMI and bill due-date reminders',
       importance: Importance.high,
       priority: Priority.high,
+      // Android hides the text on a secure lock screen when the user has
+      // chosen to hide sensitive notification content.
+      visibility: NotificationVisibility.private,
       color: Color(0xFF4F46E5),
       styleInformation: BigTextStyleInformation(''),
     ),

@@ -14,6 +14,7 @@ import 'package:fintrack/screens/goal_form_screen.dart';
 import 'package:fintrack/screens/loan_detail_screen.dart';
 import 'package:fintrack/screens/loan_form_screen.dart';
 import 'package:fintrack/screens/pay_screen.dart';
+import 'package:fintrack/screens/privacy_screen.dart';
 import 'package:fintrack/screens/profile_screen.dart';
 import 'package:fintrack/screens/transaction_form_screen.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,7 @@ void main() {
     'payments loans': (true, (n) => n.payments('loans'), const Shell()),
     'payments bills': (true, (n) => n.payments('bills'), const Shell()),
     'profile': (true, (_) {}, const ProfileScreen()),
+    'privacy policy': (true, (_) {}, const PrivacyScreen()),
     'add transaction': (true, (_) {}, const TransactionFormScreen()),
     'edit transaction': (true, (_) {}, TransactionFormScreen(id: tx.id)),
     'add loan': (true, (_) {}, const LoanFormScreen()),

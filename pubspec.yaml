@@ -14,6 +14,7 @@ dependencies:
   flutter_local_notifications: ^22.3.3
   flutter_timezone: ^5.1.1
   ionicons: ^0.2.2
+  local_auth: ^3.0.2
   package_info_plus: ^10.2.2
   provider: ^6.1.5+1
   shared_preferences: ^2.5.5
@@ -48,6 +49,9 @@ flutter_launcher_icons:
     theme_color: "#4F46E5"
 
 # Android launch screen. Regenerate with: dart run flutter_native_splash:create
+# After regenerating, set the LaunchTheme/NormalTheme parent in every
+# android/app/src/main/res/values*/styles.xml back to
+# "Theme.AppCompat.Light.NoActionBar" (needed by App lock / local_auth).
 # It is deliberately a plain background (android12.png is transparent) so the
 # animated logo in lib/app/splash.dart builds up on a clean screen.
 flutter_native_splash:

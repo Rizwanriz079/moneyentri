@@ -16,7 +16,7 @@ if (hasReleaseKey) {
 }
 
 android {
-    namespace = "com.motionray.fintrack"
+    namespace = "com.vintaxwebs.fintrack"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -33,7 +33,7 @@ android {
 
     defaultConfig {
         // Must be unique on Google Play and can never change after the first upload.
-        applicationId = "com.motionray.fintrack"
+        applicationId = "com.vintaxwebs.fintrack"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

@@ -98,4 +98,66 @@ void main() {
     expect(find.byWidgetPredicate((w) => w.runtimeType.toString() == '_CoinFace').evaluate().length, lessThanOrEqualTo(5));
     await tester.pumpAndSettle();
   });
+
+  group('liquid jar', () {
+    Widget jar(double a, {bool reduce = false}) => MaterialApp(
+      theme: buildTheme(AppColors.light),
+      home: MediaQuery(
+        data: MediaQueryData(disableAnimations: reduce),
+        child: Scaffold(body: Center(child: AmountJar(amount: a, color: Colors.red, symbol: '₹'))),
+      ),
+    );
+    dynamic painter(WidgetTester t) =>
+        t.widget<CustomPaint>(find.descendant(of: find.byType(AmountJar), matching: find.byType(CustomPaint))).painter;
+
+    testWidgets('fills higher as the amount grows, and lower when it shrinks', (tester) async {
+      await tester.pumpWidget(jar(0));
+      final empty = painter(tester).level as double;
+      await tester.pumpWidget(jar(500));
+      await tester.pump(const Duration(milliseconds: 800));
+      final mid = painter(tester).level as double;
+      await tester.pumpWidget(jar(250000));
+      await tester.pump(const Duration(milliseconds: 800));
+      final full = painter(tester).level as double;
+      await tester.pumpWidget(jar(5));
+      await tester.pump(const Duration(milliseconds: 800));
+      final low = painter(tester).level as double;
+      expect(empty, lessThan(mid));
+      expect(mid, lessThan(full));
+      expect(full, lessThanOrEqualTo(0.95));
+      expect(low, lessThan(mid));
+      await tester.pumpWidget(const SizedBox());
+    });
+
+    testWidgets('each keystroke adds bubbles that rise and then disappear', (tester) async {
+      await tester.pumpWidget(jar(0));
+      await tester.pumpWidget(jar(2));
+      await tester.pump(const Duration(milliseconds: 200));
+      expect((painter(tester).bubbles as List).length, greaterThan(0));
+      await tester.pump(const Duration(milliseconds: 1500));
+      await tester.pump(const Duration(milliseconds: 16));
+      expect((painter(tester).bubbles as List), isEmpty);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+    });
+
+    testWidgets('a keystroke after a long pause animates straight away', (tester) async {
+      await tester.pumpWidget(jar(0));
+      await tester.pumpWidget(jar(2));
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpWidget(jar(25));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect((painter(tester).bubbles as List).length, greaterThan(0));
+      await tester.pumpWidget(const SizedBox());
+    });
+
+    testWidgets('reduced motion: no waves or bubbles, level jumps straight to the value', (tester) async {
+      await tester.pumpWidget(jar(0, reduce: true));
+      await tester.pumpWidget(jar(5000, reduce: true));
+      await tester.pump();
+      expect((painter(tester).bubbles as List), isEmpty);
+      expect(painter(tester).phase, 0);
+      await tester.pumpAndSettle(); // nothing keeps animating
+    });
+  });
 }

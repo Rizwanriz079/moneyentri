@@ -4,6 +4,13 @@ import 'package:flutter/widgets.dart';
 import 'package:ionicons/ionicons.dart';
 
 const Map<String, IconData> _icons = {
+  'refresh-outline': Ionicons.refresh_outline,
+  'people-outline': Ionicons.people_outline,
+  'key-outline': Ionicons.key_outline,
+  'cloud-offline-outline': Ionicons.cloud_offline_outline,
+  'eye-off-outline': Ionicons.eye_off_outline,
+  'lock-closed-outline': Ionicons.lock_closed_outline,
+  'finger-print': Ionicons.finger_print,
   'information-circle-outline': Ionicons.information_circle_outline,
   'document-text-outline': Ionicons.document_text_outline,
   'star-outline': Ionicons.star_outline,

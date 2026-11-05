@@ -10,6 +10,7 @@ import '../data/store.dart';
 import '../services/notification_service.dart';
 import 'nav.dart';
 import 'shell.dart';
+import 'app_lock_gate.dart';
 import 'splash.dart';
 
 class FinTrackApp extends StatefulWidget {
@@ -111,7 +112,7 @@ class _FinTrackAppState extends State<FinTrackApp> with WidgetsBindingObserver {
             statusBarColor: Colors.transparent,
             systemNavigationBarColor: dark ? AppColors.darkTheme.bg : AppColors.light.bg,
           ),
-          child: SplashOverlay(child: child!),
+          child: SplashOverlay(child: AppLockGate(child: child!)),
         );
       },
       home: const Shell(),

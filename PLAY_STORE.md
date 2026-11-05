@@ -4,9 +4,9 @@ The project is set up for release. Before the first upload, you need to do four 
 
 ## 1. Check the app ID (can never change later)
 
-The app ID is `com.motionray.fintrack`. It is set in `android/app/build.gradle.kts`, in both `applicationId` and `namespace`.
+The app ID is `com.vintaxwebs.fintrack`. It is set in `android/app/build.gradle.kts`, in both `applicationId` and `namespace`.
 
-If you want a different ID, change it **before the first upload**. Also rename the folder `android/app/src/main/kotlin/com/motionray/fintrack/` and the `package` line in `MainActivity.kt` to match.
+If you want a different ID, change it **before the first upload**. Also rename the folder `android/app/src/main/kotlin/com/vintaxwebs/fintrack/` and the `package` line in `MainActivity.kt` to match.
 
 ## 2. Create your upload key (once)
 
@@ -31,9 +31,15 @@ Without `key.properties`, release builds are signed with the debug key. They sti
 ## 3. Build the bundle
 
 ```bash
-flutter build appbundle --release
+./tool/build_release.sh
 # Output: build/app/outputs/bundle/release/app-release.aab
 ```
+
+The script runs `flutter build appbundle --release --obfuscate --split-debug-info=release-symbols/<version>`.
+`--obfuscate` scrambles class and function names inside the app file, so it is much harder
+to reverse-engineer. Your source code is not changed. The `release-symbols/<version>/` folder
+is the key to read crash reports from that version (`flutter symbolize`). Keep it, and don't
+upload or share it. It is git-ignored.
 
 For each new release, raise the number after `+` in `pubspec.yaml`. For example, `version: 1.0.1+2`. Play requires a higher `versionCode` for every upload.
 
@@ -72,6 +78,7 @@ flutter install            # with the phone connected and USB debugging on
 | `POST_NOTIFICATIONS` | EMI and bill reminders (asked at runtime on Android 13+) |
 | `RECEIVE_BOOT_COMPLETED` | Restore scheduled reminders after the phone restarts |
 | `VIBRATE` | Reminder notifications |
+| `USE_BIOMETRIC` (+ `USE_FINGERPRINT` on Android 8 and below, added by the plugin) | Optional App lock (fingerprint, face or screen lock). Android checks it; the app never receives biometric data |
 
 The app deliberately does **not** use `SCHEDULE_EXACT_ALARM` or `USE_EXACT_ALARM`. Play restricts those to alarm and calendar apps. Reminders use inexact scheduling, so Android may deliver one a few minutes after the chosen time.
 

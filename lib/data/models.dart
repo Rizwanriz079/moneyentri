@@ -450,24 +450,42 @@ class Settings {
     this.theme = 'light',
     this.notificationsEnabled = true,
     this.reminderHour = 9,
+    this.privateReminders = true,
+    this.appLock = false,
   });
 
   final String name, email, currency;
   final String theme; // system | light | dark
   final bool notificationsEnabled;
 
+  /// Leave amounts out of reminder notifications (they can show on the lock screen).
+  final bool privateReminders;
+
+  /// Ask for fingerprint / face / device PIN when the app opens.
+  final bool appLock;
+
   /// Hour of day (0-23) at which reminders fire.
   final int reminderHour;
 
-  Settings copyWith({String? name, String? email, String? currency, String? theme, bool? notificationsEnabled, int? reminderHour}) =>
-      Settings(
-        name: name ?? this.name,
-        email: email ?? this.email,
-        currency: currency ?? this.currency,
-        theme: theme ?? this.theme,
-        notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
-        reminderHour: reminderHour ?? this.reminderHour,
-      );
+  Settings copyWith({
+    String? name,
+    String? email,
+    String? currency,
+    String? theme,
+    bool? notificationsEnabled,
+    int? reminderHour,
+    bool? privateReminders,
+    bool? appLock,
+  }) => Settings(
+    name: name ?? this.name,
+    email: email ?? this.email,
+    currency: currency ?? this.currency,
+    theme: theme ?? this.theme,
+    notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
+    reminderHour: reminderHour ?? this.reminderHour,
+    privateReminders: privateReminders ?? this.privateReminders,
+    appLock: appLock ?? this.appLock,
+  );
 
   Map<String, dynamic> toJson() => {
     'name': name,
@@ -476,6 +494,8 @@ class Settings {
     'theme': theme,
     'notificationsEnabled': notificationsEnabled,
     'reminderHour': reminderHour,
+    'privateReminders': privateReminders,
+    'appLock': appLock,
   };
 
   factory Settings.fromJson(Map<String, dynamic> j) => Settings(
@@ -485,6 +505,8 @@ class Settings {
     theme: j['theme'] ?? 'light',
     notificationsEnabled: j['notificationsEnabled'] ?? true,
     reminderHour: _i(j['reminderHour'] ?? 9),
+    privateReminders: j['privateReminders'] ?? true,
+    appLock: j['appLock'] ?? false,
   );
 }
 

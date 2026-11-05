@@ -48,3 +48,6 @@ app.*.map.json
 /android/key.properties
 *.jks
 *.keystore
+
+# Obfuscation symbols from tool/build_release.sh (keep locally, never publish)
+/release-symbols/

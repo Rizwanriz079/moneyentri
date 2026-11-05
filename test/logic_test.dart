@@ -195,7 +195,13 @@ void main() {
       // 3 installments × 4 offsets, minus any already in the past.
       expect(plan.length, inInclusiveRange(10, 12));
       expect(plan.every((p) => p.fireAt.isAfter(now)), isTrue);
-      expect(plan.first.body, contains('₹10,000'));
+      // Private reminders (the default) leave the amount out of the notification.
+      expect(plan.first.body, isNot(contains('₹')));
+      expect(plan.first.body, contains('Open FinTrack'));
+      s.updateSettings((x) => x.copyWith(privateReminders: false));
+      final shown = planReminders(s, now: now);
+      expect(shown.first.body, contains('₹10,000'));
+      expect(shown.first.key, isNot(plan.first.key), reason: 'changing the text reschedules the reminder');
       expect(plan.map((p) => p.id).toSet().length, plan.length, reason: 'no duplicate ids');
     });
 
@@ -208,10 +214,17 @@ void main() {
 
     test('changing the amount or date changes the reminder keys (reschedule)', () {
       final s = AppStore()..addLoan(_loan());
+      // Private reminders (default): moving the date reschedules.
       final before = planReminders(s, now: now).map((p) => p.key).toSet();
+      s.updateLoan('L1', (l) => l.copyWith(startDate: addDays(l.startDate, 2)));
+      final moved = planReminders(s, now: now).map((p) => p.key).toSet();
+      expect(before.intersection(moved), isEmpty);
+      // Amounts shown: changing the amount reschedules too.
+      s.updateSettings((x) => x.copyWith(privateReminders: false));
+      final shown = planReminders(s, now: now).map((p) => p.key).toSet();
       s.updateLoan('L1', (l) => l.copyWith(emi: 12000));
       final after = planReminders(s, now: now).map((p) => p.key).toSet();
-      expect(before.intersection(after), isEmpty);
+      expect(shown.intersection(after), isEmpty);
     });
 
     test('paused, disabled or paid installments get no reminders', () {
@@ -281,6 +294,18 @@ void main() {
         await s.hydrate();
         expect(s.settings.theme, pick);
       }
+    });
+
+    test('security settings default to private reminders on, app lock off, and are saved', () async {
+      SharedPreferences.setMockInitialValues({});
+      final s = AppStore();
+      await s.hydrate();
+      expect(s.settings.privateReminders, isTrue);
+      expect(s.settings.appLock, isFalse);
+      final j = s.settings.copyWith(appLock: true, privateReminders: false).toJson();
+      final back = Settings.fromJson(j);
+      expect(back.appLock, isTrue);
+      expect(back.privateReminders, isFalse);
     });
 
     test('the saved data records the new format version', () {

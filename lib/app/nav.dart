@@ -8,6 +8,7 @@ import '../screens/goal_form_screen.dart';
 import '../screens/loan_detail_screen.dart';
 import '../screens/loan_form_screen.dart';
 import '../screens/pay_screen.dart';
+import '../screens/privacy_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/transaction_form_screen.dart';
 
@@ -55,6 +56,7 @@ class Routes {
   static Future<void> bill(BuildContext c, String id) => _push(c, BillDetailScreen(id: id));
   static Future<void> goal(BuildContext c, String id) => _push(c, GoalDetailScreen(id: id));
   static Future<void> profile(BuildContext c) => _push(c, const ProfileScreen());
+  static Future<void> privacy(BuildContext c) => _push(c, const PrivacyScreen());
 
   /// Replace the current screen with a loan or bill detail screen.
   static void replaceWithItem(BuildContext c, String kind, String id) => Navigator.of(c).pushReplacement(

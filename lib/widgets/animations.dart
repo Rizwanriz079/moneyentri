@@ -251,6 +251,208 @@ class _RingPainter extends CustomPainter {
   bool shouldRepaint(_RingPainter old) => old.progress != progress || old.color != color || old.track != track;
 }
 
+// ───────────────────────── Liquid jar ─────────────────────────
+
+/// Round jar that fills with liquid as an amount is typed.
+///
+/// The level rises with the amount (log scale: ₹10 is a little, ₹1 lakh is
+/// nearly full). Waves move gently all the time; each keystroke makes the
+/// liquid slosh and sends a few bubbles up. The currency symbol in the middle
+/// turns white where the liquid covers it.
+///
+/// Time comes from the frame ticker. The ticker only stops for "reduce
+/// motion"; if it restarts, its clock is rebased so time never jumps back
+/// (the cause of the old frozen-coin bug).
+class AmountJar extends StatefulWidget {
+  const AmountJar({super.key, required this.amount, required this.color, required this.symbol, this.size = 112});
+  final double amount;
+  final Color color;
+  final String symbol;
+  final double size;
+
+  @override
+  State<AmountJar> createState() => _AmountJarState();
+}
+
+class _Bubble {
+  _Bubble(this.bornMs, this.x, this.radius, this.drift);
+  final double bornMs, x, radius, drift;
+}
+
+class _AmountJarState extends State<AmountJar> with SingleTickerProviderStateMixin {
+  static const _bubbleLifeMs = 1100.0;
+  static const _levelMs = 650.0;
+  final _rnd = math.Random();
+  final _bubbles = <_Bubble>[];
+  late final Ticker _ticker = createTicker((elapsed) => setState(() => _nowMs = _baseMs + elapsed.inMicroseconds / 1000));
+  double _nowMs = 0, _baseMs = 0;
+  late double _fromLevel = _levelFor(widget.amount), _toLevel = _fromLevel;
+  double _changedMs = -10000;
+
+  static double _levelFor(double amount) =>
+      amount <= 0 ? 0.08 : (0.14 + 0.78 * (math.log(amount + 1) / math.ln10 / 5)).clamp(0.14, 0.92);
+
+  double get _ms => _nowMs;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Gentle waves run while the jar is on screen, unless motion is reduced.
+    if (_reduceMotion(context)) {
+      if (_ticker.isActive) _ticker.stop();
+    } else if (!_ticker.isActive) {
+      _baseMs = _nowMs; // a restarted ticker counts from zero again
+      _ticker.start();
+    }
+  }
+
+  @override
+  void didUpdateWidget(AmountJar old) {
+    super.didUpdateWidget(old);
+    if (widget.amount == old.amount) return;
+    final now = _ms;
+    _fromLevel = _currentLevel(now);
+    _toLevel = _levelFor(widget.amount);
+    _changedMs = now;
+    if (widget.amount > old.amount && !_reduceMotion(context)) {
+      _bubbles.removeWhere((b) => now - b.bornMs > _bubbleLifeMs);
+      for (var i = 0; i < 3 && _bubbles.length < 12; i++) {
+        _bubbles.add(
+          _Bubble(now + i * 70, 0.25 + _rnd.nextDouble() * 0.5, 2.5 + _rnd.nextDouble() * 3, _rnd.nextDouble() - 0.5),
+        );
+      }
+    }
+    if (_reduceMotion(context)) setState(() {});
+  }
+
+  double _currentLevel(double now) {
+    if (_reduceMotion(context)) return _toLevel;
+    final t = ((now - _changedMs) / _levelMs).clamp(0.0, 1.0);
+    return _fromLevel + (_toLevel - _fromLevel) * Curves.easeOutBack.transform(t);
+  }
+
+  @override
+  void dispose() {
+    _ticker.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final now = _ms;
+    final reduce = _reduceMotion(context);
+    _bubbles.removeWhere((b) => now - b.bornMs > _bubbleLifeMs);
+    // Slosh: the waves get taller right after a keystroke, then calm down.
+    final since = now - _changedMs;
+    final slosh = reduce ? 0.0 : math.exp(-since / 420) * math.cos(since / 90);
+    return Semantics(
+      excludeSemantics: true,
+      child: SizedBox.square(
+        dimension: widget.size,
+        child: CustomPaint(
+          painter: _JarPainter(
+            level: _currentLevel(now).clamp(0.0, 1.0),
+            phase: reduce ? 0 : now / 1000 * math.pi * 1.4,
+            amp: 3.5 + 7 * slosh.abs(),
+            tilt: 0.12 * slosh,
+            color: widget.color,
+            ring: tint(widget.color, 0.28),
+            back: tint(widget.color, 0.08),
+            symbol: widget.symbol.trim(),
+            bubbles: [
+              for (final b in _bubbles)
+                if (now >= b.bornMs) (b, ((now - b.bornMs) / _bubbleLifeMs).clamp(0.0, 1.0)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _JarPainter extends CustomPainter {
+  _JarPainter({
+    required this.level,
+    required this.phase,
+    required this.amp,
+    required this.tilt,
+    required this.color,
+    required this.ring,
+    required this.back,
+    required this.symbol,
+    required this.bubbles,
+  });
+  final double level, phase, amp, tilt;
+  final Color color, ring, back;
+  final String symbol;
+  final List<(_Bubble, double)> bubbles;
+
+  Path _wave(Rect r, double offset, double speed, double ampScale) {
+    final top = r.bottom - level * r.height;
+    final path = Path()..moveTo(r.left, r.bottom);
+    for (var x = 0.0; x <= r.width; x += 2) {
+      final k = x / r.width;
+      final y =
+          top +
+          (k - 0.5) * tilt * r.height +
+          amp * ampScale * math.sin(k * math.pi * 2 * 1.15 + phase * speed + offset);
+      path.lineTo(r.left + x, y);
+    }
+    return path
+      ..lineTo(r.right, r.bottom)
+      ..close();
+  }
+
+  void _symbol(Canvas canvas, Rect r, Color c) {
+    final tp = TextPainter(
+      text: TextSpan(
+        text: symbol,
+        style: TextStyle(color: c, fontSize: r.width * 0.36, fontWeight: FontWeight.w800, height: 1),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(canvas, r.center - Offset(tp.width / 2, tp.height / 2));
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final outer = Offset.zero & size;
+    final inner = outer.deflate(7);
+    canvas.drawCircle(
+      outer.center,
+      size.width / 2 - 2,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3
+        ..color = ring,
+    );
+    canvas.save();
+    canvas.clipPath(Path()..addOval(inner));
+    canvas.drawRect(inner, Paint()..color = back);
+    _symbol(canvas, inner, color);
+    canvas.drawPath(_wave(inner, 1.8, 1.25, 0.8), Paint()..color = color.withValues(alpha: 0.35));
+    final front = _wave(inner, 0, 1, 1);
+    canvas.drawPath(front, Paint()..color = color);
+    // Inside the liquid: white symbol and rising bubbles.
+    canvas.clipPath(front);
+    _symbol(canvas, inner, Colors.white);
+    final top = inner.bottom - level * inner.height;
+    for (final (b, t) in bubbles) {
+      final y = inner.bottom - 4 - (inner.bottom - 4 - top) * Curves.easeOut.transform(t);
+      final x = inner.left + inner.width * b.x + b.drift * 10 * math.sin(t * math.pi * 3);
+      canvas.drawCircle(
+        Offset(x, y),
+        b.radius * (0.7 + 0.3 * t),
+        Paint()..color = Colors.white.withValues(alpha: 0.55 * (1 - t)),
+      );
+    }
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_JarPainter old) => true;
+}
+
 // ───────────────────────── Success ─────────────────────────
 
 /// Full-screen success animation: a circle pops in, a check mark draws itself,

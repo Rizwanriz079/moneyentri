@@ -3,12 +3,14 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../app/nav.dart';
 import '../core/app_info.dart';
 import '../core/format.dart';
 import '../core/icons.dart';
 import '../core/theme.dart';
 import '../data/store.dart';
 import '../domain/demo.dart';
+import '../services/app_lock.dart';
 import '../services/notification_service.dart';
 import '../widgets/ui.dart';
 
@@ -51,6 +53,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
         perm = p;
         scheduled = n;
       });
+    }
+  }
+
+  /// Turning App lock on or off needs the fingerprint / screen lock first.
+  Future<void> _setAppLock(bool on) async {
+    final lock = AppLockService.instance;
+    final store = context.read<AppStore>();
+    if (!lock.supported) {
+      await infoDialog(context, 'Android app only', 'App lock uses your phone\'s fingerprint, face or screen lock.');
+      return;
+    }
+    if (on && !await lock.canLock()) {
+      if (mounted) {
+        await infoDialog(
+          context,
+          'Set up a screen lock first',
+          'Add a PIN, pattern, password or fingerprint in your phone\'s Settings → Security, then turn on App lock.',
+        );
+      }
+      return;
+    }
+    final result = await lock.authenticate(on ? 'Confirm to turn on App lock' : 'Confirm to turn off App lock');
+    if (!mounted) return;
+    switch (result) {
+      case UnlockResult.success:
+        store.updateSettings((s) => s.copyWith(appLock: on));
+      case UnlockResult.cancelled:
+        break;
+      case UnlockResult.lockedOut:
+        await infoDialog(context, 'Too many attempts', 'Wait a moment, then try again.');
+      case UnlockResult.notSetUp:
+        await infoDialog(context, 'Set up a screen lock first', 'Add a PIN, pattern, password or fingerprint in your phone\'s Settings.');
+      case UnlockResult.error:
+        await infoDialog(context, 'Something went wrong', 'Couldn\'t check your fingerprint or screen lock. Try again.');
     }
   }
 
@@ -221,6 +257,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _refresh();
                     },
                   ),
+                ToggleRow(
+                  icon: 'eye-off-outline',
+                  label: 'Private reminders',
+                  hint: settings.privateReminders
+                      ? 'Amounts are hidden in notifications'
+                      : 'Notifications show the amount due',
+                  value: settings.privateReminders,
+                  onChanged: (v) => store.updateSettings((s) => s.copyWith(privateReminders: v)),
+                ),
                 const HairDivider(),
                 Field(
                   label: 'Remind me at',
@@ -267,6 +312,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: 'paper-plane-outline',
                     onTap: _notif.sendTest,
                   ),
+              ], 10),
+            ),
+          ),
+          AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: gap([
+                const T('Security', v: TV.h3),
+                ToggleRow(
+                  icon: 'lock-closed-outline',
+                  label: 'App lock',
+                  hint: AppLockService.instance.supported
+                      ? 'Fingerprint, face or screen lock to open the app'
+                      : 'Android app only',
+                  value: settings.appLock,
+                  onChanged: _setAppLock,
+                ),
               ], 10),
             ),
           ),
@@ -342,13 +404,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 6),
                 const HairDivider(),
-                if (AppInfo.privacyPolicyUrl.isNotEmpty)
-                  NavRow(
-                    icon: 'shield-checkmark-outline',
-                    title: 'Privacy policy',
-                    external: true,
-                    onTap: () => _open(Uri.parse(AppInfo.privacyPolicyUrl)),
-                  ),
+                NavRow(
+                  icon: 'shield-checkmark-outline',
+                  title: 'Privacy policy',
+                  onTap: () => Routes.privacy(context),
+                ),
                 if (AppInfo.supportEmail.isNotEmpty)
                   NavRow(
                     icon: 'mail-outline',
@@ -362,22 +422,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   title: 'Rate on Google Play',
                   external: true,
                   onTap: () => _open(Uri.parse(AppInfo.playStoreUrl)),
-                ),
-                NavRow(
-                  icon: 'document-text-outline',
-                  title: 'Open-source licences',
-                  onTap: () => showLicensePage(
-                    context: context,
-                    applicationName: 'FinTrack',
-                    applicationVersion: version,
-                    applicationIcon: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: Image.asset('assets/icon/icon.png', width: 56, height: 56),
-                      ),
-                    ),
-                  ),
                 ),
               ],
             ),
