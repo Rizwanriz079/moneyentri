@@ -8,7 +8,7 @@ class AppInfo {
   static const supportEmail = '';
 
   /// Must match `applicationId` in android/app/build.gradle.kts.
-  static const packageId = 'com.vintaxwebs.fintrack';
+  static const packageId = 'com.vintaxwebs.moneyentri';
 
   static const playStoreUrl = 'https://play.google.com/store/apps/details?id=$packageId';
 }

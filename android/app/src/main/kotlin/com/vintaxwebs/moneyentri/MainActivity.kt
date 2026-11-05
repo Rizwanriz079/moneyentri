@@ -1,4 +1,4 @@
-package com.vintaxwebs.fintrack
+package com.vintaxwebs.moneyentri
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

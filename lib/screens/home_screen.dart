@@ -207,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       const T('Payment reminders are off', v: TV.label),
                       T(
                         perm == NotifPermission.denied
-                            ? 'Enable notifications for FinTrack in system settings to get EMI and bill reminders.'
+                            ? 'Enable notifications for MoneyEntri in system settings to get EMI and bill reminders.'
                             : 'Allow notifications to be reminded before EMIs and bills are due.',
                         v: TV.caption,
                         muted: true,

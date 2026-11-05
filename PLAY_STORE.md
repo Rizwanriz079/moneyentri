@@ -1,17 +1,17 @@
-# Publishing FinTrack on Google Play
+# Publishing MoneyEntri on Google Play
 
 The project is set up for release. Before the first upload, you need to do four things yourself: create an upload key, sign the bundle, upload it, and fill in the store forms in Play Console.
 
 ## 1. Check the app ID (can never change later)
 
-The app ID is `com.vintaxwebs.fintrack`. It is set in `android/app/build.gradle.kts`, in both `applicationId` and `namespace`.
+The app ID is `com.vintaxwebs.moneyentri`. It is set in `android/app/build.gradle.kts`, in both `applicationId` and `namespace`.
 
-If you want a different ID, change it **before the first upload**. Also rename the folder `android/app/src/main/kotlin/com/vintaxwebs/fintrack/` and the `package` line in `MainActivity.kt` to match.
+If you want a different ID, change it **before the first upload**. Also rename the folder `android/app/src/main/kotlin/com/vintaxwebs/moneyentri/` and the `package` line in `MainActivity.kt` to match.
 
 ## 2. Create your upload key (once)
 
 ```bash
-keytool -genkey -v -keystore ~/fintrack-upload.jks -keyalg RSA -keysize 2048 \
+keytool -genkey -v -keystore ~/moneyentri-upload.jks -keyalg RSA -keysize 2048 \
   -validity 10000 -alias upload
 ```
 
@@ -21,7 +21,7 @@ Then create `android/key.properties` (this file is git-ignored):
 storePassword=YOUR_STORE_PASSWORD
 keyPassword=YOUR_KEY_PASSWORD
 keyAlias=upload
-storeFile=/Users/YOU/fintrack-upload.jks
+storeFile=/Users/YOU/moneyentri-upload.jks
 ```
 
 Back up the `.jks` file and both passwords somewhere safe. Play App Signing lets Google reset a lost upload key, but that takes days.
@@ -52,7 +52,7 @@ flutter install            # with the phone connected and USB debugging on
 
 ## 4. Play Console setup
 
-1. In [Play Console](https://play.google.com/console), choose **Create app**. Enter the name *FinTrack*, choose *App* and *Free*.
+1. In [Play Console](https://play.google.com/console), choose **Create app**. Enter the name *MoneyEntri*, choose *App* and *Free*.
 2. Under **Testing → Internal testing**, create a release and upload `app-release.aab`. Accept **Play App Signing** when asked.
 3. Complete **App content**. The answers for this app are in the table below.
 4. Complete **Main store listing**. The text and graphics are in the `store/` folder.
@@ -68,7 +68,10 @@ flutter install            # with the phone connected and USB debugging on
 | Content rating | Questionnaire category: *Utility, Productivity, Communication or Other*. Answer *No* to all content questions. |
 | Target audience | 18 and over (finance app) |
 | Data safety | **No data collected, no data shared.** All data is stored only on the device, with no network calls, no analytics and no accounts. |
-| Financial features | Declare *personal finance / budgeting* only. The app does **not** offer loans, payments, banking or crypto services; it only records what the user enters. |
+| Financial features | The app offers **no** financial services: no loans, credit, payments, banking, investments or crypto. It only records what the user types in. If the form lists a budgeting / money-management option, pick only that; otherwise choose "My app doesn't provide any financial features". |
+| Advertising ID | **No**, the app doesn't use it (no `AD_ID` permission). |
+| Account deletion | Not applicable: the app has no accounts. Data is deleted with *Erase all data* or by uninstalling. |
+| Data safety details | *Collects or shares user data?* **No**. Data that stays only on the device doesn't count as collected. |
 | Government app / news / health | No |
 
 ### Permissions the app requests
@@ -84,14 +87,14 @@ The app deliberately does **not** use `SCHEDULE_EXACT_ALARM` or `USE_EXACT_ALARM
 
 ## 5. Store listing text
 
-**App name:** FinTrack: Expense & EMI Tracker
+**App name (max 30 characters):** MoneyEntri: Expense & EMI
 
 **Short description (80 chars max):**
 Track expenses, budgets, savings goals, loan EMIs and bills with reminders.
 
 **Full description:**
 
-FinTrack is a simple, private money manager for everyday spending, budgets, savings goals, loans and bills.
+MoneyEntri is a simple, private money manager for everyday spending, budgets, savings goals, loans and bills.
 
 • Dashboard: total balance, this month's income and expenses, savings rate, and upcoming payments at a glance
 • Add income or expenses in seconds, with category, date, note and payment method (Cash, UPI, Card, Bank)
@@ -99,13 +102,16 @@ FinTrack is a simple, private money manager for everyday spending, budgets, savi
 • Budgets: a monthly budget plus category limits, with progress bars and "near limit" warnings
 • Analytics: monthly and weekly reports, 6-month income vs expense chart and a category breakdown
 • Savings goals with target dates and how much to save each month
-• Loans & EMIs: car, personal, gold, home and education loans, with an EMI calculator, outstanding balance, interest/principal split and full payment history
+• Loans & EMIs: record the car, personal, gold, home and education loans you already have, with an EMI calculator, outstanding balance, interest/principal split and full payment history
 • Bills: rent, electricity, internet, mobile, insurance and subscriptions, repeating weekly, monthly, quarterly or yearly
 • Payment calendar showing every due date
-• Reminders 7, 3 and 1 day before and on the due date, showing the amount and date. Pause or change them any time
+• Reminders 7, 3 and 1 day before and on the due date, at the time you choose. Private reminders keep amounts off the lock screen. Pause or change them any time
+• App lock with your fingerprint, face or screen lock
 • Light and dark themes, Indian Rupee (₹) by default, and 8 other currencies
 
-Your data stays on your phone. No account, no ads, no tracking.
+Your data stays on your phone. No account, no ads, no tracking, and no internet access.
+
+MoneyEntri is a personal record-keeping tool. It does not lend money, offer loans or credit, make payments or connect to your bank.
 
 **Category:** Finance
 **Tags:** expense tracker, budget, EMI, bills

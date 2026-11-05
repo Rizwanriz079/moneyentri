@@ -1,8 +1,8 @@
-import 'package:fintrack/app/app_lock_gate.dart';
-import 'package:fintrack/app/splash.dart';
-import 'package:fintrack/core/theme.dart';
-import 'package:fintrack/data/store.dart';
-import 'package:fintrack/services/app_lock.dart';
+import 'package:moneyentri/app/app_lock_gate.dart';
+import 'package:moneyentri/app/splash.dart';
+import 'package:moneyentri/core/theme.dart';
+import 'package:moneyentri/data/store.dart';
+import 'package:moneyentri/services/app_lock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -78,7 +78,7 @@ void main() {
     final lock = FakeLock([]);
     await pumpGate(tester, lock, enabled: false);
     expect(find.text('SECRET BALANCE'), findsOneWidget);
-    expect(find.text('FinTrack is locked'), findsNothing);
+    expect(find.text('MoneyEntri is locked'), findsNothing);
     expect(lock.prompts, 0);
   });
 
@@ -87,13 +87,13 @@ void main() {
     await pumpGate(tester, lock, enabled: true);
     // First prompt was cancelled: still locked and the data is not on screen.
     expect(lock.prompts, 1);
-    expect(find.text('FinTrack is locked'), findsOneWidget);
+    expect(find.text('MoneyEntri is locked'), findsOneWidget);
     expect(find.text('SECRET BALANCE'), findsNothing);
     // Tap Unlock, second prompt succeeds.
     await tester.tap(find.text('Unlock'));
     await tester.pump();
     await tester.pump();
-    expect(find.text('FinTrack is locked'), findsNothing);
+    expect(find.text('MoneyEntri is locked'), findsNothing);
     expect(find.text('SECRET BALANCE'), findsOneWidget);
   });
 
@@ -162,7 +162,7 @@ void main() {
     await tester.pump();
     // ...but that must not count as leaving the app.
     expect(lock.prompts, 1);
-    expect(find.text('FinTrack is locked'), findsNothing);
+    expect(find.text('MoneyEntri is locked'), findsNothing);
   });
 
   testWidgets('if the phone screen lock was removed, App lock turns itself off', (tester) async {

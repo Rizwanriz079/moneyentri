@@ -25,6 +25,7 @@ class ActionResult {
 /// Every mutation replaces the affected list with a new list, so listeners
 /// can detect what changed by identity (used by the reminder sync).
 class AppStore extends ChangeNotifier {
+  // Internal storage key from the app's first name; never shown to users.
   static const _storageKey = 'fintrack:state:v1';
 
   bool hydrated = false;

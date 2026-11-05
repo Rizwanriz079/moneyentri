@@ -107,7 +107,7 @@ List<PlannedReminder> planReminders(AppStore s, {DateTime? now}) {
       final title = '${firstName.isEmpty ? 'Your' : '$firstName, your'} $label $when';
       // Private mode leaves the amount out: notifications can be read on the lock screen.
       final body = s.settings.privateReminders
-          ? '${offset <= 1 ? 'Due on $dueOn. ' : ''}Open FinTrack to see the amount and record the payment.'
+          ? '${offset <= 1 ? 'Due on $dueOn. ' : ''}Open MoneyEntri to see the amount and record the payment.'
           : '$money due on $dueOn$extra. Tap to record the payment.';
       final key = ['ft', occ.kind, occ.refId, occ.dueDate, offset, _hash('$title|$body|${fire.millisecondsSinceEpoch}')].join('|');
       out.add(PlannedReminder(key, fire, title, body, PayTarget(occ.kind, occ.refId, occ.dueDate)));
@@ -341,7 +341,7 @@ class NotificationService {
     await init();
     await _plugin.show(
       id: 1,
-      title: 'FinTrack reminders are on ✅',
+      title: 'MoneyEntri reminders are on ✅',
       body: 'You will be notified before EMIs and bills are due.',
       notificationDetails: _details,
     );

@@ -1,8 +1,8 @@
-# FinTrack (Flutter)
+# MoneyEntri (Flutter)
 
 A personal finance app for Android with expenses, budgets, savings goals, loan EMIs and recurring bills, plus local payment reminders. All data stays on the device.
 
-This is the Flutter version of the React Native app in `../fintrack`, with the same features, screens and design.
+MoneyEntri was first built in React Native and then rewritten in Flutter, keeping the same features, screens and design.
 
 ## Run
 

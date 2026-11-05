@@ -1,5 +1,5 @@
-name: fintrack
-description: "FinTrack: personal expense tracker with budgets, savings goals, loan EMIs and bill reminders."
+name: moneyentri
+description: "MoneyEntri: personal expense tracker with budgets, savings goals, loan EMIs and bill reminders."
 publish_to: 'none'
 
 # version: <versionName>+<versionCode>. Increase the number after "+" for every Play Store upload.

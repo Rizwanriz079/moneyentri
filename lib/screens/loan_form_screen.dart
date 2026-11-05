@@ -116,7 +116,7 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
         await infoDialog(
           context,
           'Notifications are blocked',
-          'Your loan was saved. Enable notifications for FinTrack in system settings to receive EMI reminders.',
+          'Your loan was saved. Enable notifications for MoneyEntri in system settings to receive EMI reminders.',
         );
       }
       if (mounted) NotificationService.instance.sync(context.read<AppStore>());

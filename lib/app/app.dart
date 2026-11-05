@@ -13,14 +13,14 @@ import 'shell.dart';
 import 'app_lock_gate.dart';
 import 'splash.dart';
 
-class FinTrackApp extends StatefulWidget {
-  const FinTrackApp({super.key});
+class MoneyEntriApp extends StatefulWidget {
+  const MoneyEntriApp({super.key});
 
   @override
-  State<FinTrackApp> createState() => _FinTrackAppState();
+  State<MoneyEntriApp> createState() => _MoneyEntriAppState();
 }
 
-class _FinTrackAppState extends State<FinTrackApp> with WidgetsBindingObserver {
+class _MoneyEntriAppState extends State<MoneyEntriApp> with WidgetsBindingObserver {
   late final AppStore _store = context.read<AppStore>();
   final _notif = NotificationService.instance;
   StreamSubscription<PayTarget>? _tapSub;
@@ -99,7 +99,7 @@ class _FinTrackAppState extends State<FinTrackApp> with WidgetsBindingObserver {
       _ => ThemeMode.system,
     };
     return MaterialApp(
-      title: 'FinTrack',
+      title: 'MoneyEntri',
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
       theme: buildTheme(AppColors.light),

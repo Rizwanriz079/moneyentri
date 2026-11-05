@@ -77,7 +77,7 @@ class _AppLockGateState extends State<AppLockGate> with WidgetsBindingObserver {
   Future<void> _unlock() async {
     if (_busy) return;
     setState(() => _busy = true);
-    final result = await _lock.authenticate('Unlock FinTrack');
+    final result = await _lock.authenticate('Unlock MoneyEntri');
     if (!mounted) return;
     setState(() {
       _busy = false;
@@ -138,7 +138,7 @@ class _LockScreen extends StatelessWidget {
                 child: Image.asset('assets/icon/icon.png', width: 76, height: 76),
               ),
               const SizedBox(height: 20),
-              const T('FinTrack is locked', v: TV.h2, align: TextAlign.center),
+              const T('MoneyEntri is locked', v: TV.h2, align: TextAlign.center),
               const SizedBox(height: 8),
               const T(
                 'Use your fingerprint, face or screen lock to open the app.',

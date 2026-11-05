@@ -8,7 +8,7 @@ import '../core/theme.dart';
 ///
 /// The logo builds itself: the tile pops in, the baseline draws across, the
 /// three bars grow one after another, and the dot drops in with a bounce.
-/// Then "FinTrack" appears letter by letter with the tagline. The whole
+/// Then "MoneyEntri" appears letter by letter with the tagline. The whole
 /// thing fades out and removes itself after about 2.5 seconds.
 ///
 /// Android's native launch screen (flutter_native_splash) is a plain
@@ -66,13 +66,13 @@ class _SplashOverlayState extends State<SplashOverlay> with TickerProviderStateM
   Widget build(BuildContext context) {
     if (_done) return widget.child;
     final c = context.colors;
-    const name = 'FinTrack';
+    const name = 'MoneyEntri';
     return Stack(
       children: [
         widget.child,
         Positioned.fill(
           child: Semantics(
-            label: 'FinTrack',
+            label: 'MoneyEntri',
             container: true,
             excludeSemantics: true,
             child: AnimatedBuilder(
@@ -185,7 +185,7 @@ class _Letter extends StatelessWidget {
   );
 }
 
-/// Draws the FinTrack logo (same geometry as assets/icon/icon.png, on a
+/// Draws the MoneyEntri logo (same geometry as assets/icon/icon.png, on a
 /// 1024 grid) with each part driven by its own progress value.
 class _LogoPainter extends CustomPainter {
   _LogoPainter({required this.tile, required this.base, required this.bars, required this.dot});

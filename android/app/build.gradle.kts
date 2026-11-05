@@ -16,7 +16,7 @@ if (hasReleaseKey) {
 }
 
 android {
-    namespace = "com.vintaxwebs.fintrack"
+    namespace = "com.vintaxwebs.moneyentri"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -33,7 +33,7 @@ android {
 
     defaultConfig {
         // Must be unique on Google Play and can never change after the first upload.
-        applicationId = "com.vintaxwebs.fintrack"
+        applicationId = "com.vintaxwebs.moneyentri"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

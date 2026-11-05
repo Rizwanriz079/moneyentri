@@ -1,6 +1,6 @@
-import 'package:fintrack/core/theme.dart';
-import 'package:fintrack/widgets/animations.dart';
-import 'package:fintrack/widgets/ui.dart';
+import 'package:moneyentri/core/theme.dart';
+import 'package:moneyentri/widgets/animations.dart';
+import 'package:moneyentri/widgets/ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

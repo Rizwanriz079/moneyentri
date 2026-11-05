@@ -1,9 +1,9 @@
-import 'package:fintrack/core/dates.dart';
-import 'package:fintrack/core/format.dart';
-import 'package:fintrack/data/models.dart';
-import 'package:fintrack/data/store.dart';
-import 'package:fintrack/domain/schedule.dart';
-import 'package:fintrack/services/notification_service.dart';
+import 'package:moneyentri/core/dates.dart';
+import 'package:moneyentri/core/format.dart';
+import 'package:moneyentri/data/models.dart';
+import 'package:moneyentri/data/store.dart';
+import 'package:moneyentri/domain/schedule.dart';
+import 'package:moneyentri/services/notification_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -197,7 +197,7 @@ void main() {
       expect(plan.every((p) => p.fireAt.isAfter(now)), isTrue);
       // Private reminders (the default) leave the amount out of the notification.
       expect(plan.first.body, isNot(contains('₹')));
-      expect(plan.first.body, contains('Open FinTrack'));
+      expect(plan.first.body, contains('Open MoneyEntri'));
       s.updateSettings((x) => x.copyWith(privateReminders: false));
       final shown = planReminders(s, now: now);
       expect(shown.first.body, contains('₹10,000'));

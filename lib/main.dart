@@ -16,7 +16,7 @@ Future<void> main() async {
         ChangeNotifierProvider.value(value: store),
         ChangeNotifierProvider(create: (_) => TabNav()),
       ],
-      child: const FinTrackApp(),
+      child: const MoneyEntriApp(),
     ),
   );
 }

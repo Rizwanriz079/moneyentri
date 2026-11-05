@@ -5,7 +5,7 @@
 const privacyPolicyUpdated = '5 November 2026';
 
 const privacyPolicyIntro =
-    'FinTrack is a personal finance app for recording expenses, income, budgets, savings goals, loans and bills. '
+    'MoneyEntri is a personal finance app for recording expenses, income, budgets, savings goals, loans and bills. '
     'This policy explains what happens to the information you enter.';
 
 /// Short promises shown at the top of the screen.

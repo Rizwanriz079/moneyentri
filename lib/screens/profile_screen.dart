@@ -393,7 +393,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const T('FinTrack', v: TV.h3),
+                          const T('MoneyEntri', v: TV.h3),
                           T(version.isEmpty ? 'Expense & EMI tracker' : version, v: TV.caption, muted: true),
                         ],
                       ),
@@ -420,7 +420,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     title: 'Contact support',
                     subtitle: AppInfo.supportEmail,
                     external: true,
-                    onTap: () => _open(Uri(scheme: 'mailto', path: AppInfo.supportEmail, query: 'subject=FinTrack%20support')),
+                    onTap: () => _open(Uri(scheme: 'mailto', path: AppInfo.supportEmail, query: 'subject=MoneyEntri%20support')),
                   ),
                 NavRow(
                   icon: 'star-outline',

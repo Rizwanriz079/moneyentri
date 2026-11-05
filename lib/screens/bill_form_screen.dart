@@ -96,7 +96,7 @@ class _BillFormScreenState extends State<BillFormScreen> {
         await infoDialog(
           context,
           'Notifications are blocked',
-          'Your bill was saved. Enable notifications for FinTrack in system settings to get reminders.',
+          'Your bill was saved. Enable notifications for MoneyEntri in system settings to get reminders.',
         );
       }
       if (mounted) NotificationService.instance.sync(context.read<AppStore>());
