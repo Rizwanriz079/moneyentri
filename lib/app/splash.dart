@@ -64,13 +64,15 @@ class _SplashOverlayState extends State<SplashOverlay> with TickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    if (_done) return widget.child;
     final c = context.colors;
     const name = 'MoneyEntri';
+    // Keep the same tree shape before and after the splash. Returning the
+    // child on its own once done would rebuild everything below it from
+    // scratch, including App lock, which then asked for the fingerprint again.
     return Stack(
       children: [
         widget.child,
-        Positioned.fill(
+        if (!_done) Positioned.fill(
           child: Semantics(
             label: 'MoneyEntri',
             container: true,

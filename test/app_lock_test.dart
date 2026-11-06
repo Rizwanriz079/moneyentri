@@ -171,4 +171,28 @@ void main() {
     expect(find.text('SECRET BALANCE'), findsOneWidget);
     expect(store.settings.appLock, isFalse);
   });
+
+  testWidgets('cold start with splash: one fingerprint touch unlocks', (tester) async {
+    SplashOverlay.done.value = false;
+    final lock = FakeLock([UnlockResult.success, UnlockResult.success]);
+    final store = AppStore()..updateSettings((s) => s.copyWith(appLock: true));
+    await tester.pumpWidget(
+      ChangeNotifierProvider.value(
+        value: store,
+        child: MaterialApp(
+          theme: buildTheme(AppColors.light),
+          // Same nesting as the real app.
+          builder: (context, child) => SplashOverlay(child: AppLockGate(service: lock, child: child!)),
+          home: const Scaffold(body: Text('SECRET BALANCE')),
+        ),
+      ),
+    );
+    // Let the splash play out and the prompt run.
+    for (var i = 0; i < 40; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(lock.prompts, 1, reason: 'the fingerprint prompt must be shown only once');
+    expect(find.text('MoneyEntri is locked'), findsNothing);
+    expect(find.text('SECRET BALANCE'), findsOneWidget);
+  });
 }
