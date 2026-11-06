@@ -32,6 +32,9 @@ class Shell extends StatelessWidget {
       },
       child: Scaffold(
         extendBody: true,
+        // The tabs have no text fields near the bottom. Not resizing also stops
+        // a blank gap on phones that keep reporting the keyboard after it closes.
+        resizeToAvoidBottomInset: false,
         body: IndexedStack(
           index: nav.tab,
           children: const [HomeScreen(), HistoryScreen(), InsightsScreen(), PaymentsScreen()],

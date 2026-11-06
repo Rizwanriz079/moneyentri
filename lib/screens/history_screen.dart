@@ -213,6 +213,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     return Scaffold(
       backgroundColor: c.bg,
+      // The search box is at the top, so the keyboard never covers it.
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         bottom: false,
         child: ListView(

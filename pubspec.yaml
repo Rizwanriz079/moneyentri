@@ -3,7 +3,7 @@ description: "MoneyEntri: personal expense tracker with budgets, savings goals, 
 publish_to: 'none'
 
 # version: <versionName>+<versionCode>. Increase the number after "+" for every Play Store upload.
-version: 1.0.1+2
+version: 1.0.2+3
 
 environment:
   sdk: ^3.10.4

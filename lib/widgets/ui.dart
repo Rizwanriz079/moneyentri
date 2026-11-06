@@ -79,6 +79,8 @@ class Screen extends StatelessWidget {
     final bottom = tabs ? tabBarSpace : MediaQuery.paddingOf(context).bottom + 24;
     return Scaffold(
       backgroundColor: context.colors.bg,
+      // Main tabs never resize for the keyboard (see Shell); pushed screens do.
+      resizeToAvoidBottomInset: !tabs,
       body: SafeArea(
         bottom: false,
         child: Column(
