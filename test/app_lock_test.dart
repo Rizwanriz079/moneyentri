@@ -188,7 +188,7 @@ void main() {
       ),
     );
     // Let the splash play out and the prompt run.
-    for (var i = 0; i < 40; i++) {
+    for (var i = 0; i < 60; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
     expect(lock.prompts, 1, reason: 'the fingerprint prompt must be shown only once');
